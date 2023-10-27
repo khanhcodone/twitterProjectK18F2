@@ -1,5 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { resolve } from 'path'
+import { TokenPayLoad } from '~/models/requests/User.requests'
 
 //lamf hamf nhan vao payload, privateKey, options từ đó ký tên
 export const signToken = ({
@@ -27,10 +28,10 @@ export const verifyToken = ({
   token: string
   secretOrPublicKey?: string
 }) => {
-  return new Promise<jwt.JwtPayload>((resolve, reject) => {
+  return new Promise<TokenPayLoad>((resolve, reject) => {
     jwt.verify(token, secretOrPublicKey, (error, decoded) => {
       if (error) throw reject(error)
-      resolve(decoded as jwt.JwtPayload)
+      resolve(decoded as TokenPayLoad)
     })
   })
 }
