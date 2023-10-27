@@ -5,17 +5,20 @@ import databaseService from '~/services/database.services'
 import usersService from '~/services/users.services'
 import { ParamsDictionary } from 'express-serve-static-core'
 import { RegisterReqBody } from '~/models/requests/User.requests'
+import { ErrorWithStatus } from '~/models/Errors'
+import { ObjectId } from 'mongodb'
+import { USERS_MESSAGES } from '~/constants/messages'
 
 export const loginController = async (req: Request, res: Response) => {
   //nếu nó vào được đây, tức là đã qua được validate, đã đăng nhập thành công
   //server phải tạo ra access_token và refresh_token để đưa cho client
-  const { user }: any = req
-  const user_id = user._id //oObject_id
+  const user = req.user as User
+  const user_id = user._id as ObjectId //oObject_id
   //server phải tạo ra access_token và refresh_token để đưa cho client
 
   const result = await usersService.login(user_id.toString())
   return res.json({
-    message: 'Login successfully',
+    message: USERS_MESSAGES.LOGIN_SUCCESS,
     result
   })
 }
@@ -25,7 +28,7 @@ export const registerController = async (req: Request<ParamsDictionary, any, Reg
   const result = await usersService.register(req.body)
 
   return res.json({
-    message: 'Register successfully',
+    message: USERS_MESSAGES.REGISTER_SUCCESS,
     result
   })
 }
