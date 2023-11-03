@@ -7,6 +7,7 @@ import { TokenType, UserVerifyStatus } from '~/constants/enums'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
 import { ObjectId } from 'mongodb'
 import { USERS_MESSAGES } from '~/constants/messages'
+import { hasSubscribers } from 'diagnostics_channel'
 
 class UsersService {
   //hàm nhận vào user_id và bỏ vào payload để tạo access_token
@@ -155,6 +156,18 @@ class UsersService {
     return {
       message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
     }
+  }
+  async resetPassword({ user_id, password }: { user_id: string; password: string }) {
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: {
+          password: hashPassword(password),
+          forgot_password_token: '',
+          update_at: '$$NOW'
+        }
+      }
+    ])
+    return { message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS }
   }
 }
 
