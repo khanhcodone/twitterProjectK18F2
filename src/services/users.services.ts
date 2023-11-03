@@ -35,6 +35,14 @@ class UsersService {
       privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string //thêm
     })
   }
+  //tạo hàm signForgotPasswordToken
+  private signForgotPasswordToken(user_id: string) {
+    return signToken({
+      payLoad: { user_id, token_type: TokenType.ForgotPasswordToken },
+      options: { expiresIn: process.env.FORGOT_PASSWORD_TOKEN_EXPIRE_IN },
+      privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN as string //thêm
+    })
+  }
 
   private signAccessTokenAndRefreshToken(user_id: string) {
     return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
@@ -110,6 +118,43 @@ class UsersService {
     )
     //nếu họ verify thành công thì gữi họ access_token và refresh_token để họ đăng nhập luôn
     return { access_token, refresh_token }
+  }
+  async resendEmailVerify(user_id: string) {
+    //tạo ra email_verify_token mới
+    const email_verify_token = await this.signEmailVerifyToken(user_id)
+
+    //vào database và cập nhật lại email_verify_token mới trong table user
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: { email_verify_token, updated_at: '$$NOW' }
+      }
+    ])
+
+    //chưa làm chức năng gữi email, nên giả bộ ta đã gữi email cho client rồi, hiển thị bằng console.log
+    console.log(email_verify_token)
+    //trả về message
+    return {
+      message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS
+    }
+  }
+  async forgotPassword(user_id: string) {
+    //tạo ra forgot_password_token
+    const forgot_password_token = await this.signForgotPasswordToken(user_id)
+    //cập nhật vào forgot_password_token và user_id
+    await databaseService.users.updateOne({ _id: new ObjectId(user_id) }, [
+      {
+        $set: { forgot_password_token: forgot_password_token, updated_at: '$$NOW' }
+      }
+    ])
+    //gữi email cho người dùng đường link có cấu trúc như này
+    //http://appblabla/forgot-password?token=xxxx
+    //xxxx trong đó xxxx là forgot_password_token
+    //sau này ta sẽ dùng aws để làm chức năng gữi email, giờ ta k có
+    //ta log ra để test
+    console.log(forgot_password_token)
+    return {
+      message: USERS_MESSAGES.CHECK_EMAIL_TO_RESET_PASSWORD
+    }
   }
 }
 
