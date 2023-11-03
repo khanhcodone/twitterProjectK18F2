@@ -7,7 +7,7 @@ export const defaultErrorHandler = (err: any, req: Request, res: Response, next:
   //đây là nơi mà tất cả lỗi trên hệ thống sẽ dồn về đây
   console.log('error handler tổng')
   if (err instanceof ErrorWithStatus) {
-    res.status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR).json(omit(err, ['status']))
+    return res.status(err.status || HTTP_STATUS.INTERNAL_SERVER_ERROR).json(omit(err, ['status']))
   }
 
   //nếu mà lỗi xuống đc đây
