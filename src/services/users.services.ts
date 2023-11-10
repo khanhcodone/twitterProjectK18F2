@@ -360,7 +360,7 @@ class UsersService {
       grant_type: 'authorization_code'
     }
     //giờ ta gọi api của google, truyền body này lên để lấy id_token
-    //ta dùng axios để gọi api `npm i axios`
+    //t89l.a dùng axios để gọi api `npm i axios`
     const { data } = await axios.post(`https://oauth2.googleapis.com/token`, body, {
       headers: {
         'Content-Type': 'application/json'
